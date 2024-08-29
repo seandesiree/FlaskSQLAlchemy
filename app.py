@@ -15,7 +15,7 @@ ma= Marshmallow(app)
 
 
 
-class MembersSchema():
+class MembersSchema(ma.Schema):
     id = fields.String(required=True)
     name = fields.String(required=True)
     age = fields.String(required=True)
@@ -24,7 +24,7 @@ class MembersSchema():
 
 
 
-class WorkoutSessionsSchema():
+class WorkoutSessionsSchema(ma.Schema):
     session_id = fields.String(required=True)
     member_id = fields.String(required=True)
     session_date = fields.String(required=True)
@@ -44,13 +44,13 @@ class Member(db.Model):
     __tablename__ = "Members"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(225), nullable=False)
-    age = db.Column(db.Integer(3))
-    workouts = db.relationship("WorkoutSessions", backref = "Members")
+    age = db.Column(db.Integer())
+
 
 class WorkoutSession(db.Model):
     __tablename__ = "WorkoutSessions"
     session_id = db.Column(db.Integer, primary_key=True)
-    member_id = db.Column(db.Integer(3), db.ForeignKey("Members.id"))
+    member_id = db.Column(db.Integer(), db.ForeignKey("Members.id"))
     session_date = db.Column(db.String(9))
     session_time = db.Column(db.String(5))
     activity = db.Column(db.String(100))
@@ -131,7 +131,7 @@ def add_workoutsession():
         workoutsession_data = workoutsessions_schema.load(request.json)
     except ValidationError as err:
         return jsonify(err.messages), 400
-    new_session = WorkoutSession(session_id = workoutsession_data["session id"], member_id = workoutsession_data["member id"], session_date = workoutsession_data["session date"], session_time = workoutsession_data["session time"], activity = workoutsession_data["activity"])
+    new_session = WorkoutSession(member_id = workoutsession_data["member_id"], session_date = workoutsession_data["session_date"], session_time = workoutsession_data["session_time"], activity = workoutsession_data["activity"])
     db.session.add(new_session)
     db.session.commit()
     return jsonify({"message": "New Customer added succesfully!"}), 201
@@ -146,10 +146,10 @@ def update_workoutsession(id):
     except ValidationError as err:
         return jsonify(err.messages), 400
 
-    session.session_id = workoutsession_data["session id"]
-    session.session_member = workoutsession_data["member id"]
-    session.session_date = workoutsession_data["session date"]
-    session.session_time = workoutsession_data["session tim"]
+    session.session_id = workoutsession_data["session_id"]
+    session.session_member = workoutsession_data["member_id"]
+    session.session_date = workoutsession_data["session_date"]
+    session.session_time = workoutsession_data["session_time"]
     session.activity = workoutsession_data["activity"]
 
     db.session.commit()
